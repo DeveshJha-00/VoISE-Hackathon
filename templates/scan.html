@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KenShoku - Scan Item</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --nutri-green: #4CAF50;
+      --nutri-green-dark: #2E7D32;
+      --nutri-green-light: #8BC34A;
+      --nutri-green-pale: #E8F5E9;
+      --nutri-leaf: #66BB6A;
+      --nutri-avocado: #7CB342;
+      --nutri-mint: #AED581;
+      --nutri-lime: #C5E1A5;
+      --nutri-gray: #94a3b8;
+      --nutri-dark-gray: #334155;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(109.6deg, rgba(230, 245, 228, 1) 11.2%, rgba(242, 249, 241, 1) 91.1%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      color: var(--nutri-dark-gray);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .wave-container {
+      position: absolute;
+      width: 200%;
+      top: 0;
+      left: 0;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .wave {
+      width: 100%;
+      height: 100%;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='%23f1f5f9' opacity='0.3'%3E%3C/path%3E%3C/svg%3E") repeat-x;
+      animation: wave 25s linear infinite;
+    }
+
+    @keyframes wave {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    .floating-circles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.1;
+      filter: blur(3px);
+      mix-blend-mode: multiply;
+    }
+
+    .circle-1 {
+      top: 20%;
+      right: 15%;
+      width: 300px;
+      height: 300px;
+      background-color: var(--nutri-leaf);
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .circle-2 {
+      bottom: 15%;
+      left: 10%;
+      width: 200px;
+      height: 200px;
+      background-color: var(--nutri-mint);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .circle-3 {
+      top: 50%;
+      left: 50%;
+      width: 150px;
+      height: 150px;
+      background-color: var(--nutri-lime);
+      animation: float 10s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .logo-icon {
+      background-color: rgba(76, 175, 80, 0.1);
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 16px;
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--nutri-green-dark);
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .scan-container {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 680px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .scan-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--nutri-green-dark);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .scan-description {
+      color: var(--nutri-gray);
+      font-size: 15px;
+      margin-bottom: 24px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #video-container {
+      border: 2px solid var(--nutri-green-pale);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      margin-bottom: 24px;
+    }
+
+    video {
+      display: block;
+      width: 100%;
+      max-width: 640px;
+      max-height: 480px;
+      object-fit: cover;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .button {
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      background: var(--nutri-green);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .button:hover {
+      background: var(--nutri-green-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+    }
+
+    .button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+    }
+
+    #capture-button {
+      background: var(--nutri-green);
+    }
+
+    #next-button {
+      background: var(--nutri-avocado);
+    }
+
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--nutri-gray);
+    }
+
+    .footer-icon {
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 5px solid var(--nutri-green-pale);
+      border-top: 5px solid var(--nutri-green);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    .loading-text {
+      color: var(--nutri-green-dark);
+      font-weight: 600;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .mode-button {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--nutri-gray);
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mode-button:hover {
+      color: var(--nutri-green-dark);
+    }
+
+    .mode-button.active {
+      background: white;
+      color: var(--nutri-green);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .mode-button svg {
+      flex-shrink: 0;
+    }
+
+    .input-method-button {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--nutri-dark-gray);
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .input-method-button:hover {
+      color: var(--nutri-green-dark);
+    }
+
+    .input-method-button.active {
+      background: white;
+      color: var(--nutri-green);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .input-method-button svg {
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 680px) {
+      .scan-container {
+        padding: 16px;
+      }
+
+      video {
+        max-height: 360px;
+      }
+
+      .button {
+        padding: 12px 20px;
+        font-size: 15px;
+      }
+
+      .mode-button {
+        padding: 8px 16px;
+        font-size: 13px;
+      }
+
+      .input-method-button {
+        padding: 8px 16px;
+        font-size: 13px;
+      }
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <div class="floating-circles">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+    <div class="circle circle-3"></div>
+  </div>
+  <div class="wave-container">
+    <div class="wave"></div>
+  </div>
+
+  <div class="header">
+    <div class="logo-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6.8 21a4 4 0 0 1-1.6-7.7c1.9-7.8 9.8-7.8 11.7 0A4 4 0 0 1 15.2 21z"></path>
+        <path d="M12 10v4"></path>
+        <path d="M12 17.5v.5"></path>
+      </svg>
+    </div>
+    <h1>KenShoku</h1>
+  </div>
+
+  <div class="scan-container">
+    <div class="scan-title">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 8h.01"></path>
+        <rect width="16" height="20" x="4" y="2" rx="2" ry="2"></rect>
+        <path d="M4 22h16"></path>
+        <path d="M2 17h20"></path>
+      </svg>
+      Scan Your Food Item
+    </div>
+
+    <!-- Mode Selector (Barcode/Food) -->
+    <div style="margin-bottom: 20px;">
+      <div style="display: inline-flex; background: rgba(76, 175, 80, 0.1); border-radius: 12px; padding: 4px; gap: 4px;">
+        <button id="barcode-mode-btn" class="mode-button active" onclick="switchMode('barcode')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 5v14"></path>
+            <path d="M8 5v14"></path>
+            <path d="M12 5v14"></path>
+            <path d="M17 5v14"></path>
+            <path d="M21 5v14"></path>
+          </svg>
+          Barcode
+        </button>
+        <button id="food-mode-btn" class="mode-button" onclick="switchMode('food')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+            <line x1="6" y1="1" x2="6" y2="4"></line>
+            <line x1="10" y1="1" x2="10" y2="4"></line>
+            <line x1="14" y1="1" x2="14" y2="4"></line>
+          </svg>
+          Food Photo
+        </button>
+      </div>
+    </div>
+
+    <!-- Input Method Selector (Camera/Upload) -->
+    <div style="margin-bottom: 20px;">
+      <div style="display: inline-flex; background: rgba(148, 163, 184, 0.1); border-radius: 12px; padding: 4px; gap: 4px;">
+        <button id="camera-input-btn" class="input-method-button active" onclick="switchInputMethod('camera')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path>
+            <circle cx="12" cy="13" r="3"></circle>
+          </svg>
+          Use Camera
+        </button>
+        <button id="upload-input-btn" class="input-method-button" onclick="switchInputMethod('upload')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Upload Image
+        </button>
+      </div>
+    </div>
+
+    <p class="scan-description" id="mode-description">
+      Position the barcode in front of the camera and click 'Capture' when ready. Our AI will scan and provide nutritional information.
+    </p>
+
+    <!-- Camera View Container -->
+    <div id="video-container">
+      <video id="video" autoplay playsinline></video>
+    </div>
+
+    <!-- File Upload Container (hidden by default) -->
+    <div id="upload-container" style="display: none;">
+      <div style="border: 2px dashed var(--nutri-green); border-radius: 12px; padding: 40px; text-align: center; background: rgba(76, 175, 80, 0.05);">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--nutri-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px;">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+        <input type="file" id="file-input" accept="image/png,image/jpeg,image/jpg,image/webp,image/heic,image/heif" style="display: none;">
+        <label for="file-input" class="button" style="cursor: pointer; display: inline-flex;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          Choose Image
+        </label>
+        <p style="margin-top: 12px; color: var(--nutri-gray); font-size: 14px;">
+          Supported formats: PNG, JPEG, JPG, WebP, HEIC
+        </p>
+        <div id="file-preview" style="margin-top: 20px; display: none;">
+          <img id="preview-image" style="max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+          <p id="file-name" style="margin-top: 8px; font-size: 14px; color: var(--nutri-gray);"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="button-container" style="margin-top: 24px;">
+      <button id="capture-button" class="button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+        Capture
+      </button>
+      <button id="analyze-button" class="button" style="display: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        Analyze Image
+      </button>
+      <button id="next-button" class="button" style="display:none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"></path>
+          <path d="m12 5 7 7-7 7"></path>
+        </svg>
+        Next
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="spinner"></div>
+    <p class="loading-text">Analyzing your food item...</p>
+  </div>
+
+  <div class="footer">
+    <svg class="footer-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6.8 21a4 4 0 0 1-1.6-7.7c1.9-7.8 9.8-7.8 11.7 0A4 4 0 0 1 15.2 21z"></path>
+    </svg>
+    KenShoku • Your Smart Nutritionist
+  </div>
+
+  <script>
+    const video = document.getElementById('video');
+    const captureButton = document.getElementById('capture-button');
+    const analyzeButton = document.getElementById('analyze-button');
+    const nextButton = document.getElementById('next-button');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const modeDescription = document.getElementById('mode-description');
+    const videoContainer = document.getElementById('video-container');
+    const uploadContainer = document.getElementById('upload-container');
+    const fileInput = document.getElementById('file-input');
+    const filePreview = document.getElementById('file-preview');
+    const previewImage = document.getElementById('preview-image');
+    const fileName = document.getElementById('file-name');
+
+    // Track current mode and input method
+    let currentMode = 'barcode';
+    let currentInputMethod = 'camera';
+    let selectedFile = null;
+
+    // Mode switching function (Barcode/Food)
+    function switchMode(mode) {
+      currentMode = mode;
+
+      const barcodeBtn = document.getElementById('barcode-mode-btn');
+      const foodBtn = document.getElementById('food-mode-btn');
+
+      if (mode === 'barcode') {
+        barcodeBtn.classList.add('active');
+        foodBtn.classList.remove('active');
+        updateDescription();
+      } else {
+        foodBtn.classList.add('active');
+        barcodeBtn.classList.remove('active');
+        updateDescription();
+      }
+    }
+
+    // Input method switching function (Camera/Upload)
+    function switchInputMethod(method) {
+      currentInputMethod = method;
+
+      const cameraBtn = document.getElementById('camera-input-btn');
+      const uploadBtn = document.getElementById('upload-input-btn');
+
+      if (method === 'camera') {
+        cameraBtn.classList.add('active');
+        uploadBtn.classList.remove('active');
+        videoContainer.style.display = 'block';
+        uploadContainer.style.display = 'none';
+        captureButton.style.display = 'inline-flex';
+        analyzeButton.style.display = 'none';
+        updateDescription();
+      } else {
+        uploadBtn.classList.add('active');
+        cameraBtn.classList.remove('active');
+        videoContainer.style.display = 'none';
+        uploadContainer.style.display = 'block';
+        captureButton.style.display = 'none';
+        analyzeButton.style.display = 'inline-flex';
+        updateDescription();
+      }
+    }
+
+    // Update description text based on mode and input method
+    function updateDescription() {
+      if (currentInputMethod === 'camera') {
+        if (currentMode === 'barcode') {
+          modeDescription.textContent = 'Position the barcode in front of the camera and click \'Capture\' when ready. Our AI will scan and provide nutritional information.';
+        } else {
+          modeDescription.textContent = 'Position your food item in front of the camera and click \'Capture\' when ready. Our AI will identify and provide nutritional information.';
+        }
+      } else {
+        if (currentMode === 'barcode') {
+          modeDescription.textContent = 'Upload an image with a barcode. Our AI will scan and provide nutritional information.';
+        } else {
+          modeDescription.textContent = 'Upload an image of any food item. Our AI will identify and provide nutritional information.';
+        }
+      }
+    }
+
+    // Access the webcam
+    navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: 'environment',
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      }
+    })
+    .then(stream => {
+      video.srcObject = stream;
+    })
+    .catch(err => {
+      console.error("Error accessing camera: ", err);
+      console.log("Camera not available, user can still upload images");
+    });
+
+    // Handle file selection
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Validate file type
+      const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/heic', 'image/heif'];
+      if (!validTypes.includes(file.type)) {
+        alert('Please select a valid image file (PNG, JPEG, JPG, WebP, HEIC)');
+        return;
+      }
+
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB');
+        return;
+      }
+
+      selectedFile = file;
+
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImage.src = e.target.result;
+        fileName.textContent = file.name;
+        filePreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Camera capture button
+    captureButton.addEventListener('click', () => {
+      loadingOverlay.style.display = 'flex';
+
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      const dataUrl = canvas.toDataURL('image/jpeg');
+
+      $.ajax({
+        type: 'POST',
+        url: '/capture_frame',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          image: dataUrl,
+          mode: currentMode
+        }),
+        success: function(response) {
+          loadingOverlay.style.display = 'none';
+          nextButton.style.display = 'inline-flex';
+        },
+        error: function(response) {
+          loadingOverlay.style.display = 'none';
+          const errorMsg = response.responseJSON?.message || 'Failed to analyze the image. Please try again.';
+          alert(errorMsg);
+        }
+      });
+    });
+
+    // Analyze uploaded image button
+    analyzeButton.addEventListener('click', () => {
+      if (!selectedFile) {
+        alert('Please select an image file first');
+        return;
+      }
+
+      loadingOverlay.style.display = 'flex';
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target.result;
+
+        $.ajax({
+          type: 'POST',
+          url: '/capture_frame',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            image: dataUrl,
+            mode: currentMode
+          }),
+          success: function(response) {
+            loadingOverlay.style.display = 'none';
+            nextButton.style.display = 'inline-flex';
+          },
+          error: function(response) {
+            loadingOverlay.style.display = 'none';
+            const errorMsg = response.responseJSON?.message || 'Failed to analyze the image. Please try again.';
+            alert(errorMsg);
+          }
+        });
+      };
+      reader.readAsDataURL(selectedFile);
+    });
+
+    nextButton.addEventListener('click', () => {
+      window.location.href = '/product';
+    });
+  </script>
+</body>
+</html>

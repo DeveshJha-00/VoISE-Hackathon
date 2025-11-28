@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KenShoku - Chat with Nutrition Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --nutri-green: #22c55e;
+      --nutri-green-dark: #16a34a;
+      --nutri-green-light: #86efac;
+      --nutri-green-pale: #dcfce7;
+      --nutri-gray: #8E9196;
+      --nutri-dark-gray: #444;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: var(--nutri-dark-gray);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .wave-container {
+      position: absolute;
+      width: 200%;
+      top: 0;
+      left: 0;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .wave {
+      width: 100%;
+      height: 100%;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z' fill='%23f1f5f9' opacity='0.3'%3E%3C/path%3E%3C/svg%3E") repeat-x;
+      animation: wave 25s linear infinite;
+    }
+
+    @keyframes wave {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    .floating-circles {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.1;
+    }
+
+    .circle-1 {
+      top: 20%;
+      right: 15%;
+      width: 300px;
+      height: 300px;
+      background-color: var(--nutri-green-light);
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .circle-2 {
+      bottom: 15%;
+      left: 10%;
+      width: 200px;
+      height: 200px;
+      background-color: var(--nutri-green);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .circle-3 {
+      top: 50%;
+      left: 50%;
+      width: 150px;
+      height: 150px;
+      background-color: var(--nutri-green-dark);
+      animation: float 10s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+
+    .chat-container {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 1000px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      height: 90vh;
+      max-height: 900px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--nutri-green-pale);
+    }
+
+    .logo {
+      display: flex;
+      margin-right: 15px;
+    }
+
+    .logo-icon {
+      background-color: var(--nutri-green-pale);
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+    }
+
+    .header-text {
+      flex: 1;
+    }
+
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--nutri-green-dark);
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+
+    .context-box {
+      background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%);
+      border: 2px solid var(--nutri-green-light);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .context-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      color: var(--nutri-green-dark);
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .context-item {
+      margin: 6px 0;
+      color: var(--nutri-dark-gray);
+      line-height: 1.5;
+    }
+
+    .context-item strong {
+      color: var(--nutri-green-dark);
+    }
+
+    .context-note {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--nutri-green-light);
+      font-size: 13px;
+      color: var(--nutri-green-dark);
+      font-style: italic;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--nutri-gray);
+    }
+
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      border-radius: 12px;
+      background-color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--nutri-green-pale);
+    }
+
+    .chat-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-box::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    .chat-box::-webkit-scrollbar-thumb {
+      background: var(--nutri-green-light);
+      border-radius: 10px;
+    }
+
+    .message {
+      padding: 12px 16px;
+      border-radius: 18px;
+      margin-bottom: 10px;
+      max-width: 75%;
+      word-wrap: break-word;
+      font-size: 15px;
+      line-height: 1.5;
+      position: relative;
+      animation: message-fade-in 0.3s ease-out;
+    }
+
+    @keyframes message-fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      width: 12px;
+      height: 12px;
+    }
+
+    .user-message {
+      background-color: var(--nutri-green-pale);
+      color: var(--nutri-dark-gray);
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+    }
+
+    .user-message::after {
+      right: -6px;
+      border-bottom-left-radius: 16px;
+      box-shadow: -6px 6px 0 0 var(--nutri-green-pale);
+    }
+
+    .bot-message {
+      background-color: white;
+      color: var(--nutri-dark-gray);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .bot-message::after {
+      left: -6px;
+      border-bottom-right-radius: 16px;
+      box-shadow: 6px 6px 0 0 white;
+    }
+
+    .bot-message .bot-icon {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+      vertical-align: text-bottom;
+    }
+
+    .typing-indicator {
+      display: flex;
+      padding: 12px 16px;
+      background-color: white;
+      border-radius: 18px;
+      width: fit-content;
+      margin-bottom: 10px;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .typing-circle {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin: 0 2px;
+      background-color: var(--nutri-gray);
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+
+    .typing-circle:nth-child(1) {
+      animation: typing-bounce 1s infinite 0s;
+    }
+
+    .typing-circle:nth-child(2) {
+      animation: typing-bounce 1s infinite 0.2s;
+    }
+
+    .typing-circle:nth-child(3) {
+      animation: typing-bounce 1s infinite 0.4s;
+    }
+
+    @keyframes typing-bounce {
+      0%, 60%, 100% {
+        transform: translateY(0);
+      }
+      30% {
+        transform: translateY(-4px);
+      }
+    }
+
+    .date-divider {
+      text-align: center;
+      margin: 20px 0;
+      position: relative;
+    }
+
+    .date-divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background-color: var(--nutri-green-pale);
+      z-index: 1;
+    }
+
+    .date-text {
+      position: relative;
+      z-index: 2;
+      background-color: rgba(255, 255, 255, 0.5);
+      padding: 0 10px;
+      font-size: 12px;
+      color: var(--nutri-gray);
+      display: inline-block;
+    }
+
+    .input-group {
+      display: flex;
+      border-radius: 12px;
+      background-color: white;
+      padding: 5px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--nutri-green-pale);
+    }
+
+    .chat-input {
+      flex: 1;
+      border: none;
+      padding: 12px 15px;
+      font-size: 15px;
+      border-radius: 10px;
+      color: var(--nutri-dark-gray);
+    }
+
+    .chat-input:focus {
+      outline: none;
+    }
+
+    .chat-input::placeholder {
+      color: var(--nutri-gray);
+    }
+
+    .send-button {
+      background-color: var(--nutri-green);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      width: 45px;
+      padding: 0;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .send-button:hover {
+      background-color: var(--nutri-green-dark);
+      transform: translateY(-2px);
+    }
+
+    .send-button:active {
+      transform: translateY(0);
+    }
+
+    .send-button svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .options-container {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .option-pill {
+      background-color: white;
+      border: 1px solid var(--nutri-green-pale);
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--nutri-green-dark);
+    }
+
+    .option-pill:hover {
+      background-color: var(--nutri-green-pale);
+      transform: translateY(-2px);
+    }
+
+    .option-pill:active {
+      transform: translateY(0);
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--nutri-gray);
+      margin-top: 15px;
+    }
+
+    .footer-icon {
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .chat-container {
+        height: 90vh;
+        padding: 20px;
+      }
+      
+      .message {
+        max-width: 85%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .chat-container {
+        padding: 15px;
+      }
+      
+      .header {
+        margin-bottom: 15px;
+      }
+      
+      .logo-icon {
+        width: 40px;
+        height: 40px;
+      }
+      
+      h1 {
+        font-size: 18px;
+      }
+      
+      .message {
+        max-width: 90%;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-circles">
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+    <div class="circle circle-3"></div>
+  </div>
+  <div class="wave-container">
+    <div class="wave"></div>
+  </div>
+
+  <div class="chat-container">
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 9L18.005 9M18.005 9L16 9M18.005 9V7M18.005 9V11"/>
+            <path d="M4 9H12" stroke-width="2.5"/>
+            <path d="M12 15H20" stroke-width="2.5"/>
+            <path d="M8 15L6.005 15M6.005 15L4 15M6.005 15V13M6.005 15V17"/>
+          </svg>
+        </div>
+      </div>
+      <div class="header-text">
+        <h1>KenShoku Assistant</h1>
+        <p class="subtitle">Your personal nutrition guide</p>
+      </div>
+    </div>
+
+    {% if product or user %}
+    <div class="context-box">
+      <div class="context-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        Context Information
+      </div>
+      {% if product %}
+      <div class="context-item">
+        <strong>Scanned Food:</strong> {{ product.get('product_name', 'Unknown') }}
+        {% if product.get('quantity') %}
+        ({{ product.get('quantity') }})
+        {% endif %}
+      </div>
+      {% endif %}
+      {% if user %}
+      <div class="context-item">
+        <strong>Your Profile:</strong>
+        {% if user.get('age') %}Age {{ user.get('age') }}, {% endif %}
+        {% if user.get('goals') %}Goals: {{ user.get('goals') }}, {% endif %}
+        {% if user.get('allergens') %}Allergies: {{ user.get('allergens') }}, {% endif %}
+        {% if user.get('dietary') %}Diet: {{ user.get('dietary') }}{% endif %}
+      </div>
+      {% endif %}
+      <p class="context-note">💡 I remember your preferences and the food you scanned!</p>
+    </div>
+    {% endif %}
+
+    <div id="chat-box" class="chat-box">
+      <div class="date-divider">
+        <span class="date-text">Today</span>
+      </div>
+      
+      <div class="message bot-message">
+        <svg class="bot-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6.8 21a4 4 0 0 1-1.6-7.7c1.9-7.8 9.8-7.8 11.7 0A4 4 0 0 1 15.2 21z"></path>
+        </svg>
+        Hello! I'm your KenShoku assistant. How can I help with your nutrition questions today?
+      </div>
+    </div>
+
+    <form id="chat-form">
+      <div class="input-group">
+        <input type="text" id="user-input" class="chat-input" placeholder="Type your nutrition question..." required>
+        <button class="send-button" type="submit">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </form>
+
+    <div class="footer">
+      <svg class="footer-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6.8 21a4 4 0 0 1-1.6-7.7c1.9-7.8 9.8-7.8 11.7 0A4 4 0 0 1 15.2 21z"></path>
+      </svg>
+      KenShoku • Your Smart Nutritionist
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const chatBox = document.getElementById('chat-box');
+      const chatForm = document.getElementById('chat-form');
+      const userInput = document.getElementById('user-input');
+      
+      function scrollToBottom() {
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      function parseMarkdown(text) {
+        // Convert **bold** to <strong>bold</strong>
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        // Convert bullet points (- item) to list items
+        let lines = text.split('\n');
+        let inList = false;
+        let result = [];
+
+        for (let line of lines) {
+          if (line.trim().startsWith('-')) {
+            if (!inList) {
+              result.push('<ul style="margin: 8px 0; padding-left: 20px;">');
+              inList = true;
+            }
+            result.push('<li style="margin: 4px 0;">' + line.trim().substring(1).trim() + '</li>');
+          } else {
+            if (inList) {
+              result.push('</ul>');
+              inList = false;
+            }
+            if (line.trim()) {
+              result.push(line);
+            }
+          }
+        }
+
+        if (inList) {
+          result.push('</ul>');
+        }
+
+        return result.join('<br>');
+      }
+
+      function showTypingIndicator() {
+        const typingIndicator = document.createElement('div');
+        typingIndicator.className = 'typing-indicator';
+        typingIndicator.id = 'typing-indicator';
+        
+        // Create three typing circles
+        for (let i = 0; i < 3; i++) {
+          const circle = document.createElement('div');
+          circle.className = 'typing-circle';
+          typingIndicator.appendChild(circle);
+        }
+        
+        chatBox.appendChild(typingIndicator);
+        scrollToBottom();
+        
+        return typingIndicator;
+      }
+      
+      function addMessage(text, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = isUser ? 'message user-message' : 'message bot-message';
+        
+        if (!isUser) {
+          const botIcon = document.createElement('svg');
+          botIcon.className = 'bot-icon';
+          botIcon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+          botIcon.setAttribute('width', '16');
+          botIcon.setAttribute('height', '16');
+          botIcon.setAttribute('viewBox', '0 0 24 24');
+          botIcon.setAttribute('fill', 'none');
+          botIcon.setAttribute('stroke', '#22c55e');
+          botIcon.setAttribute('stroke-width', '2');
+          botIcon.setAttribute('stroke-linecap', 'round');
+          botIcon.setAttribute('stroke-linejoin', 'round');
+          
+          const iconPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          iconPath.setAttribute('d', 'M6.8 21a4 4 0 0 1-1.6-7.7c1.9-7.8 9.8-7.8 11.7 0A4 4 0 0 1 15.2 21z');
+          botIcon.appendChild(iconPath);
+          
+          messageDiv.appendChild(botIcon);
+        }
+
+        // Parse markdown for bot messages, plain text for user messages
+        if (!isUser) {
+          const contentSpan = document.createElement('span');
+          contentSpan.innerHTML = parseMarkdown(text);
+          messageDiv.appendChild(contentSpan);
+        } else {
+          messageDiv.appendChild(document.createTextNode(text));
+        }
+
+        chatBox.appendChild(messageDiv);
+        scrollToBottom();
+      }
+      
+      window.sendSuggestedQuestion = function(question) {
+        addMessage(question, true);
+        processUserMessage(question);
+      };
+      
+      function processUserMessage(message) {
+        const typingIndicator = showTypingIndicator();
+
+        // Actually call the API endpoint
+        fetch('/ask_chatgpt', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            'question': message
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Remove typing indicator
+          if (typingIndicator && typingIndicator.parentNode) {
+            chatBox.removeChild(typingIndicator);
+          }
+
+          // Add bot response
+          addMessage(data.answer);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+
+          // Remove typing indicator
+          if (typingIndicator && typingIndicator.parentNode) {
+            chatBox.removeChild(typingIndicator);
+          }
+
+          // Show error message
+          addMessage("Sorry, I encountered an error. Please try again.");
+        });
+      }
+      
+      chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const message = userInput.value.trim();
+        
+        if (message) {
+          addMessage(message, true);
+          userInput.value = '';
+          processUserMessage(message);
+        }
+      });
+      
+      // Auto-send context message if coming from product page
+      {% if product or user %}
+      // Check if we haven't sent the context message yet (use sessionStorage to prevent re-sending)
+      if (!sessionStorage.getItem('contextMessageSent')) {
+        setTimeout(function() {
+          // Build context message
+          let contextMessage = "Here's my information:\n\n";
+
+          {% if user %}
+          {% if user.get('age') %}
+          contextMessage += "- Age: {{ user.get('age') }}\n";
+          {% endif %}
+          {% if user.get('gender') %}
+          contextMessage += "- Gender: {{ user.get('gender') }}\n";
+          {% endif %}
+          {% if user.get('goals') %}
+          contextMessage += "- Nutritional Goals: {{ user.get('goals') }}\n";
+          {% endif %}
+          {% if user.get('allergens') %}
+          contextMessage += "- Allergies: {{ user.get('allergens') }}\n";
+          {% endif %}
+          {% if user.get('dietary') %}
+          contextMessage += "- Dietary preference: {{ user.get('dietary') }}\n";
+          {% endif %}
+          {% endif %}
+
+          {% if product %}
+          contextMessage += "\nI just scanned: {{ product.get('product_name', 'Unknown food') }}";
+          {% if product.get('quantity') %}
+          contextMessage += " ({{ product.get('quantity') }})";
+          {% endif %}
+          contextMessage += "\n";
+          {% endif %}
+
+          contextMessage += "\nBased on this information, please give me personalized nutrition advice about this food.";
+
+          // Send the context message to backend (but don't display it in UI)
+          processUserMessage(contextMessage);
+
+          // Mark as sent
+          sessionStorage.setItem('contextMessageSent', 'true');
+        }, 500); // Small delay to let the page load
+      }
+      {% endif %}
+
+      // Initial scroll to bottom
+      scrollToBottom();
+    });
+  </script>
+</body>
+</html>
