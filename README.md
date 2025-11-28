@@ -1,3 +1,7 @@
+# PPT : https://www.canva.com/design/DAG59pprk9Q/iiYN_L9_3ExjjyCpf_WZtQ/view?utm_content=DAG59pprk9Q&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h30874c70b8
+
+
+
 # 🍎 KenShoku - Smart Nutrition Assistant
 
 KenShoku is an AI-powered nutrition assistant that helps users analyze food items and receive personalized dietary recommendations based on their health profile.
@@ -106,5 +110,6 @@ kenshoku/
 This project was created for the VoISE Hackathon.
 
 ## 🤝 Contributing
+
 
 Contributions are welcome! Please feel free to submit a Pull Request.
