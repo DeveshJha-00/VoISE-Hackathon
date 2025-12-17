@@ -4,4 +4,4 @@ requests
 opencv-python
 pyzbar
 python-dotenv
-google-genai
+groq

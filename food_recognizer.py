@@ -3,16 +3,16 @@ import os
 
 import requests
 from dotenv import load_dotenv
-from google import genai
+from groq import Groq
 
 load_dotenv()
 
 
 class FoodRecognizer:
     def __init__(self):
-        self.api_key = os.getenv("GEMINI_API_KEY")
-        self.client = genai.Client(api_key=self.api_key)
-        self.model = "gemini-2.0-flash"  
+        self.api_key = os.getenv("GROQ_API_KEY")
+        self.client = Groq(api_key=self.api_key)
+        self.model = "meta-llama/llama-4-scout-17b-16e-instruct"  
         
         self.usda_api_key = os.getenv(
             "USDA_API_KEY", "DEMO_KEY"
@@ -52,36 +52,39 @@ If you see multiple items, separate each with a newline.
 Be specific (e.g., "grilled chicken breast" not just "chicken").
 """
 
-            print("Sending image to Gemini Vision API...")
+            print("Sending image to Groq Vision API...")
 
-            from google.genai import types
+            base64_image = base64.b64encode(image_data).decode('utf-8')
 
-            text_part = types.Part(text=prompt)
-            image_part = types.Part(
-                inline_data=types.Blob(
-                    mime_type="image/jpeg",
-                    data=image_data
-                )
-            )
-
-            response = self.client.models.generate_content(
+            response = self.client.chat.completions.create(
                 model=self.model,
-                contents=[text_part, image_part],
-                config=types.GenerateContentConfig(
-                    temperature=0.4,
-                    max_output_tokens=500,
-                ),
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{base64_image}"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                temperature=0.4,
+                max_tokens=500,
             )
 
-            gemini_response = response.text
-            print(f"Gemini Vision Response:\n{gemini_response}")
+            gemini_response = response.choices[0].message.content
+            print(f"Groq Vision Response:\n{gemini_response}")
 
             food_items = self.parse_gemini_response(gemini_response)
 
             return food_items
 
         except Exception as e:
-            print(f"Error in Gemini Vision recognition: {e}")
+            print(f"Error in Groq Vision recognition: {e}")
             import traceback
 
             traceback.print_exc()
